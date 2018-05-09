@@ -18,6 +18,7 @@ class CreateLink extends React.Component {
         url:url
       },
       update:(store,{ data:post }) => {
+        console.log(post);
         const data = store.readQuery({ query:FEED_QUERY });
         data.feed.links.splice(0,0,post);
         store.writeQuery({
