@@ -2,6 +2,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { FEED_QUERY } from './LinkList';
+import { LINKS_PER_PAGE } from '../utils/constants';
 
 class CreateLink extends React.Component {
   state = {
@@ -19,7 +20,12 @@ class CreateLink extends React.Component {
       },
       update:(store,{ data:post }) => {
         console.log(post);
-        const data = store.readQuery({ query:FEED_QUERY });
+        const isNewPage = this.props.location.pathname.includes('new')
+        const page = parseInt(this.props.match.params.page, 10)
+        const skip = isNewPage ? (page - 1) * LINKS_PER_PAGE : 0
+        const first = isNewPage ? LINKS_PER_PAGE : 100
+        const orderBy = isNewPage ? 'createdAt_DESC' : null
+        const data = store.readQuery({ query:FEED_QUERY, variables: { skip, first, page } });
         data.feed.links.splice(0,0,post);
         store.writeQuery({
           query: FEED_QUERY,
@@ -63,6 +69,6 @@ const POST_MUTATION = gql`
       description
     }
   }
-`
+`;
 
 export default graphql(POST_MUTATION,{name:'postMutation'})(CreateLink);
